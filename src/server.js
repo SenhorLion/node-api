@@ -12,19 +12,35 @@ app.use(json())
 app.use(urlencoded({ extended: true }))
 app.use(morgan('dev'))
 
+// middlewares
+const log = (req, res, next) => {
+  console.log('logger', req.body, res.statusCode)
+
+  // pass back any data to the 'next' controller
+  req.mydata = 'mydata from logger'
+
+  next()
+}
 // routes
-app.get('/', (req, res) => {
+app.get('/', log, (req, res) => {
   const status = JSON.stringify(res.statusCode, null, 2)
-  res.send({ message: `Index route {GET} hello, status: ${status}` })
+  res.send({ message: `Index route, status: ${status}` })
 })
 
-app.post('/', (req, res) => {
+app.get('/data', log, (req, res) => {
   const status = JSON.stringify(res.statusCode, null, 2)
-  const body = JSON.stringify(req.body, null, 2)
+  const dataFromLogger = req.mydata
 
   res.send({
-    message: `Index route {POST} ok, status: ${status}, body: ${body}`
+    message: `Data route, status: ${status}, dataFromLogger ${dataFromLogger}`
   })
+})
+
+app.post('/data', (req, res) => {
+  //   const status = JSON.stringify(res.statusCode, null, 2)
+  //   const body = JSON.stringify(req.body, null, 2)
+
+  res.send(req.body)
 })
 
 export const start = () => {
